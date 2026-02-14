@@ -135,3 +135,25 @@ Prompt examples show `top_k=2`; this run logs `top_k=4` because logger records a
 - Requested full-precision model does not run reliably on 16GB VRAM in this setup.
 - Quantized model used: `Qwen/Qwen1.5-MoE-A2.7B-Chat-GPTQ-Int4`.
 - Logging semantics/schema are unchanged; only model precision differs.
+
+## F) Future Work
+
+1. **Close the requirement gap (full precision)**
+   - Re-run with full-precision `Qwen/Qwen1.5-MoE-A2.7B-Chat` on a >=24GB VRAM GPU.
+   - Goal: remove quantization deviation and provide direct compliance with requested model precision.
+
+2. **16GB-friendly full-precision comparison**
+   - Run the same logger pipeline on a smaller MoE model that fits full precision on 16GB VRAM.
+   - Compare top experts, entropy, and concentration versus the current GPTQ-Int4 run.
+
+3. **Top-k comparability**
+   - Evaluate how routing metrics shift when model/config uses different `top_k`.
+   - Add top-k-normalized metrics so results are comparable across models.
+
+4. **Logging overhead characterization**
+   - Benchmark no-log vs log overhead across multiple prompt lengths, batch sizes, and repeated runs.
+   - Report median and spread, not just single-run throughput.
+
+5. **Workflow hardening**
+   - Add automated preflight checks (patch presence, schema validation, artifact checks) in one command.
+   - Add CI-style reproducibility checks for documentation-command drift.
