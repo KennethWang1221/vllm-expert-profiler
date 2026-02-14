@@ -48,8 +48,8 @@
 - Confirm meta has required fields: `type`, `model_id`, `vllm_version`, `torch_version`, `device`, `seed`, `layers_logged`, `top_k`
 - Validate all route records have 6 required fields: `type`, `req_id`, `token_idx`, `layer`, `topk_ids`, `topk_weights`
 - Check field types:
-  - `topk_ids`: list of 2 integers in range [0, 59]
-  - `topk_weights`: list of 2 floats that sum to ~1.0
+  - `topk_ids`: list of `top_k` integers in range [0, 59]
+  - `topk_weights`: list of `top_k` floats
   - `layer`: integer (should be 0 for logged layer)
   - `token_idx`: sequential integer starting from 0
 
@@ -57,7 +57,7 @@
 - Verify token_idx sequences are monotonically increasing within each request
 - Confirm layer_id is consistent (0) across all route records
 - Validate topk_ids are within valid expert range
-- Check topk_weights are normalized probabilities (positive, sum ≈1.0)
+- Check topk_weights are numeric and correspond element-wise to topk_ids
 - Count total records matches expected tokens generated
 
 ### 3. Statistical Analysis
@@ -71,13 +71,13 @@
 - Fixed seed (1234) for deterministic LLM sampling
 - Temperature=0.0 for greedy decoding (deterministic)
 - Same 25 GSM8K prompts in fixed order
-- Verify multiple runs produce identical routing patterns
+- Verify schema/structure consistency across repeated runs
 
 ### 5. Performance Measurement
 - Measure wall-clock time for both runs (no_log vs log)
 - Calculate throughput (tokens/second)
 - Compute logging overhead percentage
-- Expected overhead: 5-15% (CPU file I/O + tensor conversion)
+- Compare no_log vs log under identical prompt slice and seed
 - Verify precompiled kernels used (no compilation messages in logs)
 
 ### 6. Visual Verification
@@ -100,7 +100,7 @@
 
 ### Performance Considerations
 - Minimal overhead: checks happen only when env var set
-- Async-safe: file writes don't block inference
+- Logging writes are synchronous Python file I/O
 - CPU tensor conversion: `.detach().cpu().tolist()`
 - Batch writing: one write call per token (not per expert)
 
@@ -124,24 +124,22 @@
 
 ## Reproducibility Notes
 
-To reproduce this work:
+To reproduce this work (as submitted):
 
-1. Install exact versions:
+1. Follow `APPENDIX.md` section **A) How to Fully Reproduce Current Work**.
+2. Preferred dependency installation:
    ```bash
-   pip install vllm==0.15.1 torch==2.9.1 datasets matplotlib
+   uv pip install -r requirements-lock.txt
    ```
-
-2. Apply patch to installed vLLM location:
+3. Run end-to-end:
    ```bash
-   python3 apply_hook.py
+   ./test.sh
    ```
+4. Validate schema and artifacts using Appendix checks.
 
-3. Set environment variables:
-   ```bash
-   export VLLM_USE_PRECOMPILED=1
-   export VLLM_LOG_MOE_SEED=1234
-   ```
+## Submission Note
 
-4. Run inference with fixed seed and temperature=0.0
-
-5. Generate analysis using provided scripts
+- Requirement requested `Qwen/Qwen1.5-MoE-A2.7B-Chat` (full precision).
+- Due 16GB VRAM constraint, final reproducible run uses
+  `Qwen/Qwen1.5-MoE-A2.7B-Chat-GPTQ-Int4`.
+- The MoE routing logger behavior and JSONL schema remain unchanged; only model loading precision differs.
