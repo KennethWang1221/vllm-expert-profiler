@@ -23,6 +23,25 @@ Minimal vLLM patch to log MoE expert routing per token, plus a plotting script f
    - Actual run logs `top_k: 4` for this model/config.
    - Reason: logger records the model's real router behavior at runtime.
 
+## Setup (Minimal)
+
+```bash
+git clone <YOUR_REPO_URL> vllm-expert-profiler
+cd vllm-expert-profiler
+
+# install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source "$HOME/.local/bin/env" 2>/dev/null || true
+
+# create env and install pinned dependencies
+uv venv .venv
+source .venv/bin/activate
+uv pip install -r requirements-lock.txt
+```
+
+For full reproducibility checks and validation (schema, artifacts, patch verification), see:
+- `APPENDIX.md` -> **A) How to Fully Reproduce Current Work**
+
 ## Quick Start
 
 ```bash
