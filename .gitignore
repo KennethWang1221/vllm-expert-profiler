@@ -1,6 +1,13 @@
-.envrc
 __pycache__/
-venv/
-moe_routes.jsonl
+*.pyc
+*.pyo
 .venv/
-__pycache__/
+venv/
+.envrc
+*.log
+.DS_Store
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
